@@ -70,6 +70,11 @@ async function run() {
             const products = await productsCollection.find(query).toArray();
             res.send(products);
         })
+        app.get('/categoryName', async (req, res) => {
+            const query = {}
+            const result = await categoryCollection.find(query).project({ categoryName: 1 }).toArray();
+            res.send(result);
+        })
 
         app.get('/jwt', async (req, res) => {
             const email = req.query.email;
@@ -173,13 +178,13 @@ async function run() {
 
         app.get('/products', verifyJWT, verifyAdmin, async (req, res) => {
             const query = {};
-            const doctors = await productsCollection.find(query).toArray();
-            res.send(doctors);
+            const products = await productsCollection.find(query).toArray();
+            res.send(products);
         })
 
-        app.post('/products', verifyJWT, verifyAdmin, async (req, res) => {
-            const doctor = req.body;
-            const result = await productsCollection.insertOne(doctor);
+        app.post('/products', verifyJWT, async (req, res) => {
+            const product = req.body;
+            const result = await productsCollection.insertOne(product);
             res.send(result);
         });
 
