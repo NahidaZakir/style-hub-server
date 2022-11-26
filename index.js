@@ -112,7 +112,7 @@ async function run() {
 
         });
 
-        app.put('/users/admin/:id', verifyJWT, verifyAdmin, async (req, res) => {
+        app.put('/users/admin/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
             const filter = { _id: ObjectId(id) }
             const options = { upsert: true };
@@ -163,6 +163,33 @@ async function run() {
             const result = await bookingsCollection.insertOne(booking);
             res.send(result);
         });
+
+        app.get('/products/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { sellerEmail: email };
+            const sellerProducts = await productsCollection.find(query).toArray();
+            res.send(sellerProducts);
+        })
+
+        app.get('/products', verifyJWT, verifyAdmin, async (req, res) => {
+            const query = {};
+            const doctors = await productsCollection.find(query).toArray();
+            res.send(doctors);
+        })
+
+        app.post('/products', verifyJWT, verifyAdmin, async (req, res) => {
+            const doctor = req.body;
+            const result = await productsCollection.insertOne(doctor);
+            res.send(result);
+        });
+
+        app.delete('/products/:id', verifyJWT, verifyAdmin, async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const result = await productsCollection.deleteOne(filter);
+            res.send(result);
+        })
+
 
 
     }
