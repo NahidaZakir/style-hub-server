@@ -43,6 +43,7 @@ async function run() {
         const categoryCollection = client.db('styleHub').collection('category');
         const productsCollection = client.db('styleHub').collection('products');
         const usersCollection = client.db('styleHub').collection('users');
+        const bookingsCollection = client.db('styleHub').collection('bookings');
 
         const verifyAdmin = async (req, res, next) => {
             const decodedEmail = req.decoded.email;
@@ -97,15 +98,18 @@ async function run() {
             const user = req.body;
             console.log(user);
             const query = {};
-            // TODO: make sure you do not enter duplicate user email
-            // only insert users if the user doesn't exist in the database
             const allUsers = await usersCollection.find(query).toArray();
-            const check = allUsers.find(eachUser => eachUser === user)
+            const check = allUsers.filter(eachUser => eachUser === user)
+            console.log(check);
             if (check.length === 0) {
                 const result = await usersCollection.insertOne(user);
+                res.send(result);
+            }
+            else {
+                res.send();
             }
 
-            res.send(result);
+
         });
 
         app.put('/users/admin/:id', verifyJWT, verifyAdmin, async (req, res) => {
@@ -118,6 +122,45 @@ async function run() {
                 }
             }
             const result = await usersCollection.updateOne(filter, updatedDoc, options);
+            res.send(result);
+        });
+
+        app.get('/bookings', verifyJWT, async (req, res) => {
+            const email = req.query.email;
+            const decodedEmail = req.decoded.email;
+
+            if (email !== decodedEmail) {
+                return res.status(403).send({ message: 'forbidden access' });
+            }
+
+            const query = { email: email };
+            const bookings = await bookingsCollection.find(query).toArray();
+            res.send(bookings);
+        });
+
+        app.get('/bookings/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const booking = await bookingsCollection.findOne(query);
+            res.send(booking);
+        })
+
+        app.post('/bookings', async (req, res) => {
+            const booking = req.body;
+            console.log(booking);
+            const query = {
+                email: booking.email,
+                productName: booking.productName
+            }
+
+            const alreadyBooked = await bookingsCollection.find(query).toArray();
+
+            if (alreadyBooked.length) {
+                const message = `You already have booked this product`;
+                return res.send({ acknowledged: false, message })
+            }
+
+            const result = await bookingsCollection.insertOne(booking);
             res.send(result);
         });
 
