@@ -194,6 +194,18 @@ async function run() {
             const result = await productsCollection.insertOne(product);
             res.send(result);
         });
+        app.put('/products/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) }
+            const options = { upsert: true };
+            const updatedDoc = {
+                $set: {
+                    advertise: 'true'
+                }
+            }
+            const result = await productsCollection.updateOne(filter, updatedDoc, options);
+            res.send(result);
+        });
 
         app.delete('/products/:id', verifyJWT, verifyAdmin, async (req, res) => {
             const id = req.params.id;
