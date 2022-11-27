@@ -189,6 +189,7 @@ async function run() {
             res.send(products);
         })
 
+
         app.post('/products', verifyJWT, async (req, res) => {
             const product = req.body;
             const result = await productsCollection.insertOne(product);
@@ -250,6 +251,13 @@ async function run() {
             const buyers = await usersCollection.find(query).toArray();
             res.send(buyers);
         });
+        app.get('/advertised', verifyJWT, async (req, res) => {
+
+            const setAdv = "true";
+            const query = { advertise: setAdv };
+            const products = await productsCollection.find(query).toArray();
+            res.send(products);
+        })
 
 
 
