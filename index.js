@@ -130,6 +130,12 @@ async function run() {
             const result = await usersCollection.updateOne(filter, updatedDoc, options);
             res.send(result);
         });
+        app.delete('/users/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const result = await usersCollection.deleteOne(filter);
+            res.send(result);
+        });
 
         app.get('/bookings', verifyJWT, async (req, res) => {
             const email = req.query.email;
@@ -229,9 +235,10 @@ async function run() {
             const account = req.query.accountType;
             console.log(account);
             const query = { accountType: account };
-            const sellers = await usersCollection.find(query).toArray();
-            res.send(sellers);
+            const buyers = await usersCollection.find(query).toArray();
+            res.send(buyers);
         });
+
 
 
 
