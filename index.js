@@ -44,6 +44,7 @@ async function run() {
         const productsCollection = client.db('styleHub').collection('products');
         const usersCollection = client.db('styleHub').collection('users');
         const bookingsCollection = client.db('styleHub').collection('bookings');
+        const sellersCollection = client.db('styleHub').collection('sellers');
 
         const verifyAdmin = async (req, res, next) => {
             const decodedEmail = req.decoded.email;
@@ -193,7 +194,44 @@ async function run() {
             const filter = { _id: ObjectId(id) };
             const result = await productsCollection.deleteOne(filter);
             res.send(result);
-        })
+        });
+        app.get('/sellers', async (req, res) => {
+            const account = req.query.accountType;
+            console.log(account);
+            const query = { accountType: account };
+            const sellers = await usersCollection.find(query).toArray();
+            res.send(sellers);
+        });
+
+        app.post('/sellers', async (req, res) => {
+            const user = req.body;
+            console.log(user);
+            const query = {};
+            const allUsers = await usersCollection.find(query).toArray();
+            const check = allUsers.filter(eachUser => eachUser === user)
+            console.log(check);
+            if (check.length === 0) {
+                const result = await usersCollection.insertOne(user);
+                res.send(result);
+            }
+            else {
+                res.send();
+            }
+        });
+
+        app.delete('/seller/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const result = await usersCollection.deleteOne(filter);
+            res.send(result);
+        });
+        app.get('/buyers', async (req, res) => {
+            const account = req.query.accountType;
+            console.log(account);
+            const query = { accountType: account };
+            const sellers = await usersCollection.find(query).toArray();
+            res.send(sellers);
+        });
 
 
 
