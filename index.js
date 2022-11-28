@@ -92,6 +92,12 @@ async function run() {
             const users = await usersCollection.find(query).toArray();
             res.send(users);
         });
+        app.get('/users/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email }
+            const user = await usersCollection.findOne(query);
+            res.send(user);
+        })
 
         app.get('/users/admin/:email', async (req, res) => {
             const email = req.params.email;
@@ -236,6 +242,18 @@ async function run() {
             else {
                 res.send();
             }
+        });
+        app.put('/sellers/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) }
+            const options = { upsert: true };
+            const updatedDoc = {
+                $set: {
+                    verified: 'true'
+                }
+            }
+            const result = await usersCollection.updateOne(filter, updatedDoc, options);
+            res.send(result);
         });
 
         app.delete('/seller/:id', async (req, res) => {
